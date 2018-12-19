@@ -1,10 +1,14 @@
 import requests
 from bs4 import BeautifulSoup
 import re
-from colorama import Fore, Style, init as coloramaInit
+from colorama import Fore, Back, Style, init as coloramaInit
 
 MINIMUM_THRESHOLD = 20
+ERROR_NOT_FOUND = "Book not found."
 books = [
+    {
+        "name": "Ερασιτέχνης επαναστάτης"
+    },
     {
         "name": "Η αλγοριθμική τέχνη των αποφάσεων",
         "protoporia": "https://www.protoporia.gr/i-algorithmiki-techni-ton-apofaseon-p-491259.html",
@@ -18,7 +22,7 @@ books = [
 ]
 
 
-def printMesage(name, discount, vendor):
+def printMesage(name, vendor, discount=None):
     """Print the message to the user."""
     message = "{} {}% discount in {}".format(
         name,
@@ -31,6 +35,16 @@ def printMesage(name, discount, vendor):
         print(Style.RESET_ALL)
     else:
         print(message)
+
+
+def printErrorMesage(name, vendor, error):
+    """Print an error message to the user."""
+    message = "{} returns an error for {}: {}".format(
+        vendor,
+        name,
+        error
+    )
+    print(Back.RED + message + Style.RESET_ALL)
 
 
 def getParser(link):
@@ -50,24 +64,59 @@ def parseDiscount(element):
     return discount
 
 
+def searchInProtoporia(book):
+    """Given a book name, make a search in Protoporia and return info for the first match."""
+    link = "https://www.protoporia.gr/advanced_search_result.php?keywords={}".format(
+        book["name"].replace(" ", "+")
+    )
+    parser = getParser(link)
+    elements = parser.findAll(
+        "table", {"class": "productListing"}
+    )[0].findAll("tr")[1]
+    name = elements.find("td", {"class": "txtSmallHeader"}).string
+    price = elements.find("span", {"class": "productpriceList"}).string
+    discount = parseDiscount(elements.find("font", {"color": "red"}).string)
+    return name, price, discount
+
+
+def getFromProtoporia(book):
+    """Given a book, get its data form Protoporia."""
+    parser = getParser(book["protoporia"])
+    # Extract HTML element info from the DOM
+    element = parser.find(
+        "td", {"class": "productSpecialPrice"}
+    ).findAll("span")[1].string
+    discount = parseDiscount(element)
+    return book["name"], discount
+
+
+def getFromPoliteia(book):
+    """Given a book, get its data form Politeia."""
+    parser = getParser(book["politeia"])
+    # Extract HTML element info from the DOM
+    element = parser.find("td", {"class": "pricediscount2"}).string
+    discount = parseDiscount(element)
+    return book["name"], discount
+
+
 def crawl():
     """Iterate through a list of books, print the discount (if any) for both providers."""
     for book in books:
+        if not book.get("protoporia") and not book.get("politeia"):
+            # Only the book name is given, so apply a search first
+            try:
+                name, price, discount = searchInProtoporia(book)
+                printMesage(name=name, discount=discount, vendor="Protoporia")
+            except IndexError:
+                printErrorMesage(name=book.get("name"), vendor="Protoporia", error=ERROR_NOT_FOUND)
+        # Search in Protoporia
         if book.get("protoporia"):
-            parser = getParser(book["protoporia"])
-            # Extract HTML element info from the DOM
-            element = parser.find(
-                "td", {"class": "productSpecialPrice"}
-            ).findAll("span")[1].string
-            discount = parseDiscount(element)
-            printMesage(book["name"], discount, "Protoporia")
-
+            name, discount = getFromProtoporia(book)
+            printMesage(name=name, discount=discount, vendor="Protoporia")
+        # Search in Politeia
         if book.get("politeia"):
-            parser = getParser(book["politeia"])
-            # Extract HTML element info from the DOM
-            element = parser.find("td", {"class": "pricediscount2"}).string
-            discount = parseDiscount(element)
-            printMesage(book["name"], discount, "Politeia")
+            name, discount = getFromPoliteia(book)
+            printMesage(name=name, discount=discount, vendor="Politeia")
         print("<---------------------------------------------------->")
 
 
