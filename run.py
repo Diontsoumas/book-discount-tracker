@@ -2,24 +2,10 @@ import requests
 from bs4 import BeautifulSoup
 import re
 from colorama import Fore, Back, Style, init as coloramaInit
+from common.constants import MINIMUM_THRESHOLD
+from config.configurator import Configurator
 
-MINIMUM_THRESHOLD = 20
 ERROR_NOT_FOUND = "Book not found."
-books = [
-    {
-        "name": "Χόμπιτ"
-    },
-    {
-        "name": "Η αλγοριθμική τέχνη των αποφάσεων",
-        "protoporia": "https://www.protoporia.gr/i-algorithmiki-techni-ton-apofaseon-p-491259.html",
-        "politeia": "https://www.politeianet.gr/index.php?option=com_virtuemart&Itemid=89&keyword=%CE%97+%CE%B1%CE%BB%CE%B3%CE%BF%CF%81%CE%B9%CE%B8%CE%BC%CE%B9%CE%BA%CE%AE+%CF%84%CE%AD%CF%87%CE%BD%CE%B7+%CF%84%CF%89%CE%BD+%CE%B1%CF%80%CE%BF%CF%86%CE%AC%CF%83%CE%B5%CF%89%CE%BD&limitstart=0"
-    },
-    {
-        "name": "Αγριοτρενο",
-        "protoporia": "https://www.protoporia.gr/to-agriotreno-p-490623.html",
-        "politeia": "https://www.politeianet.gr/index.php?option=com_virtuemart&Itemid=89&keyword=%09+%CE%A4%CE%BF+%CE%91%CE%B3%CF%81%CE%B9%CF%8C%CF%84%CF%81%CE%B5%CE%BD%CE%BF&limitstart=0"
-    },
-]
 
 
 def printMesage(name, vendor, discount=None):
@@ -124,6 +110,8 @@ def getFromPoliteia(book):
 
 def crawl():
     """Iterate through a list of books, print the discount (if any) for both providers."""
+    configuration = Configurator()
+    books = configuration.get_books()
     for book in books:
         if not book.get("protoporia") and not book.get("politeia"):
             # Only the book name is given, so apply a search first
