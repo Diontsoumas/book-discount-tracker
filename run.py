@@ -7,7 +7,7 @@ MINIMUM_THRESHOLD = 20
 ERROR_NOT_FOUND = "Book not found."
 books = [
     {
-        "name": "Ερασιτέχνης επαναστάτης"
+        "name": "Χόμπιτ"
     },
     {
         "name": "Η αλγοριθμική τέχνη των αποφάσεων",
@@ -39,7 +39,7 @@ def printMesage(name, vendor, discount=None):
 
 def printErrorMesage(name, vendor, error):
     """Print an error message to the user."""
-    message = "{} returns an error for {}: {}".format(
+    message = "{} returns an error for \"{}\": {}".format(
         vendor,
         name,
         error
@@ -70,12 +70,35 @@ def searchInProtoporia(book):
         book["name"].replace(" ", "+")
     )
     parser = getParser(link)
-    elements = parser.findAll(
+    element = parser.findAll(
         "table", {"class": "productListing"}
     )[0].findAll("tr")[1]
-    name = elements.find("td", {"class": "txtSmallHeader"}).string
-    price = elements.find("span", {"class": "productpriceList"}).string
-    discount = parseDiscount(elements.find("font", {"color": "red"}).string)
+    name = element.find("td", {"class": "txtSmallHeader"}).string
+    price = element.find("span", {"class": "productpriceList"}).string
+    discount = parseDiscount(element.find("font", {"color": "red"}).string)
+    return name, price, discount
+
+
+def searchInPoliteia(book):
+    """Given a book name, make a search in Politeia and return info for the first match."""
+    link = "https://www.politeianet.gr/index.php?option=com_virtuemart&Itemid=89&keyword={}".format(
+        book["name"].replace(" ", "+")
+    )
+    parser = getParser(link)
+    element = parser.findAll("tr")[0]
+    name = element.find("a", {"class": "browse-product-title"}).string
+    price = element.find("span", {"class": "productPrice"}).string
+    discountElement = element.find("td", {"class": "priceDiscount"})
+
+    if not discountElement:
+        # Politeia seems to have multiple discount elements, probably based on the level
+        # of discount
+        discountElement = element.find("td", {"class": "pricediscount2"})
+
+    if not discountElement:
+        discount = 0
+    else:
+        discount = parseDiscount(discountElement.string)
     return name, price, discount
 
 
@@ -105,10 +128,14 @@ def crawl():
         if not book.get("protoporia") and not book.get("politeia"):
             # Only the book name is given, so apply a search first
             try:
+                vendor = "protoporia"
                 name, price, discount = searchInProtoporia(book)
                 printMesage(name=name, discount=discount, vendor="Protoporia")
+                vendor = "politeia"
+                name, price, discount = searchInPoliteia(book)
+                printMesage(name=name, discount=discount, vendor="Politeia")
             except IndexError:
-                printErrorMesage(name=book.get("name"), vendor="Protoporia", error=ERROR_NOT_FOUND)
+                printErrorMesage(name=book.get("name"), vendor=vendor, error=ERROR_NOT_FOUND)
         # Search in Protoporia
         if book.get("protoporia"):
             name, discount = getFromProtoporia(book)
