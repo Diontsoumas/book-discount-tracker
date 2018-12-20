@@ -1,9 +1,22 @@
 {
   "settings": [],
+  "book_example": {
+    "name": "Best book ever",
+    "protoporia": "Link to protoporia bookshop",
+    "politeia": "Link to politeia bookshop",
+    "settings": {
+      "MINIMUM_THRESHOLD": 10,
+      "HIDE_UNLESS_HAS_VALID_DISCOUNT": false
+    }
+  },
   "books": [
     {
-        "name": "Χόμπιτ"
-    },
+        "name": "Χόμπιτ",
+        "settings": {
+          "MINIMUM_THRESHOLD": 30,
+          "HIDE_UNLESS_HAS_VALID_DISCOUNT": true
+        }
+    }, 
     {
         "name": "Η αλγοριθμική τέχνη των αποφάσεων",
         "protoporia": "https://www.protoporia.gr/i-algorithmiki-techni-ton-apofaseon-p-491259.html",

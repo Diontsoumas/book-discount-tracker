@@ -1,4 +1,5 @@
 from vendors.utils import parse_discount, get_html_parser
+from common.constants import MINIMUM_THRESHOLD, PRINT_DISCOUNT, PRINT_NORMAL, PRINT_HIDE
 
 
 class BaseBookshop:
@@ -93,3 +94,31 @@ class Book:
     def __init__(self, **kwargs):
         """Constructor."""
         self.__dict__.update(kwargs)
+
+    def get_visibility(self):
+        """A book may have an option to be hidden if there is not a valid discount for
+        it. In this case, return the appropriate print type."""
+        try:
+            # Check if it needs to be hidden since there is no discount
+            if self.settings['HIDE_UNLESS_HAS_VALID_DISCOUNT']:
+                return PRINT_HIDE
+        except AttributeError:
+            pass
+        return PRINT_NORMAL
+
+    def discount_type(self, discount):
+        """Depending on the settings of each book, determine about the notification type
+        that will be displayed to the user.
+        """
+        try:
+            # Check for custom threshold limit
+            if int(discount) >= self.settings['MINIMUM_THRESHOLD']:
+                return PRINT_DISCOUNT
+            return self.get_visibility()
+        except AttributeError:
+            pass
+        # Check for the default limit
+        if int(discount) >= MINIMUM_THRESHOLD:
+            return PRINT_DISCOUNT
+
+        return self.get_visibility()

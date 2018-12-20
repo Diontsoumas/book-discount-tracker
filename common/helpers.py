@@ -1,20 +1,22 @@
 from colorama import Fore, Back, Style
-from common.constants import MINIMUM_THRESHOLD
+from common.constants import PRINT_DISCOUNT, PRINT_NORMAL, PRINT_HIDE
 
 
-def print_mesage(name, vendor, discount=None):
+def print_mesage(name, vendor, type, discount=None):
     """Print the message to the user."""
     message = "{} {}% discount in {}".format(
         name,
         discount,
         vendor
     )
-    if int(discount) >= MINIMUM_THRESHOLD:
+    if type == PRINT_DISCOUNT:
         print(Fore.RED + message)
         # Reset the style back to normal
         print(Style.RESET_ALL)
-    else:
+    elif type == PRINT_NORMAL:
         print(message)
+    elif type == PRINT_HIDE:
+        pass
 
 
 def print_error_message(name, vendor, error):

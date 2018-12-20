@@ -18,7 +18,10 @@ def crawl():
             try:
                 if getattr(book, vendor.name):
                     name, discount = vendor.get(book)
-                    print_mesage(name=name, discount=discount, vendor=vendor.name)
+                    print_mesage(
+                        name=name, type=book.discount_type(discount), discount=discount,
+                        vendor=vendor.name
+                    )
                     continue
             except AttributeError:
                 # Vendor link not found
@@ -27,7 +30,10 @@ def crawl():
             # Perform a search
             try:
                 name, price, discount = vendor.search(book)
-                print_mesage(name=name, discount=discount, vendor=vendor.name)
+                print_mesage(
+                    name=name, type=book.discount_type(discount),
+                    discount=discount, vendor=vendor.name
+                )
             except IndexError:
                 print_error_message(
                     name=book.name, vendor=vendor.name,
