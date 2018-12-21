@@ -2,6 +2,7 @@ from colorama import init as colorama_init
 from config.configurator import Configurator
 from vendors.bookshops import ProtoporiaBookshop, PoliteiaBookshop
 from common.helpers import print_mesage, print_error_message, print_end_of_element
+from common.options_handler import OptionsHandler
 
 ERROR_NOT_FOUND = "Book not found."
 
@@ -29,11 +30,14 @@ def crawl():
 
             # Perform a search
             try:
-                name, price, discount = vendor.search(book)
-                print_mesage(
-                    name=name, type=book.discount_type(discount),
-                    discount=discount, vendor=vendor.name
-                )
+                book_choices = vendor.search(book)
+                options_handler = OptionsHandler(book_choices, vendor)
+                options_handler.display_choices()
+                options_handler.ask_input()
+                # print_mesage(
+                #     name=name, type=book.discount_type(discount),
+                #     discount=discount, vendor=vendor.name
+                # )
             except IndexError:
                 print_error_message(
                     name=book.name, vendor=vendor.name,

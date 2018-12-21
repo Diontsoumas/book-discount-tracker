@@ -1,8 +1,8 @@
 from colorama import Fore, Back, Style
-from common.constants import PRINT_DISCOUNT, PRINT_NORMAL, PRINT_HIDE
+from common.constants import PRINT_DISCOUNT, PRINT_NORMAL, PRINT_HIDE, PRINT_CHOICE
 
 
-def print_mesage(name, vendor, type, discount=None):
+def print_mesage(name, vendor, type, discount=None, price=None):
     """Print the message to the user."""
     message = "{} {}% discount in {}".format(
         name,
@@ -17,6 +17,8 @@ def print_mesage(name, vendor, type, discount=None):
         print(message)
     elif type == PRINT_HIDE:
         pass
+    elif type == PRINT_CHOICE:
+        print(Back.CYAN + Fore.RED + message + Style.RESET_ALL)
 
 
 def print_error_message(name, vendor, error):

@@ -39,15 +39,21 @@ class ProtoporiaBookshop(BaseBookshop):
             self.SEARCH_LINK,
             book.name.replace(" ", "+")
         )
+        book_list = []
         parser = get_html_parser(link)
-        element = parser.findAll(
+        book_search = parser.findAll(
             "table", {"class": "productListing"}
-        )[0].findAll("tr")[1]
-        # Extract name price and discount from the page
-        name = element.find("td", {"class": "txtSmallHeader"}).string
-        price = element.find("span", {"class": "productpriceList"}).string
-        discount = parse_discount(element.find("font", {"color": "red"}).string)
-        return name, price, discount
+        )
+        for book in book_search:
+            element = book.findAll("tr")[1]
+            # Extract name price and discount from the page
+            name = element.find("td", {"class": "txtSmallHeader"}).string
+            price = element.find("span", {"class": "productpriceList"}).string
+            discount = parse_discount(element.find("font", {"color": "red"}).string)
+            book_list.append(
+                Book(**{'name': name, 'price': price, 'discount': discount})
+            )
+        return book_list
 
 
 class PoliteiaBookshop(BaseBookshop):
@@ -70,23 +76,32 @@ class PoliteiaBookshop(BaseBookshop):
             self.SEARCH_LINK,
             book.name.replace(" ", "+")
         )
+        book_list = []
         parser = get_html_parser(link)
-        element = parser.findAll("tr")[0]
-        name = element.find("a", {"class": "browse-product-title"}).string
-        price = element.find("span", {"class": "productPrice"}).string
-        discountElement = element.find("td", {"class": "priceDiscount"})
+        book_search = parser.findAll("div", {"class": "browse-page-block"})
+        for element in book_search:
+            name = element.find("a", {"class": "browse-product-title"}).string
+            try:
+                price = element.find("span", {"class": "productPrice"}).string
+            except AttributeError:
+                price = None
 
-        if not discountElement:
-            # Politeia seems to have multiple discount elements, probably based on the
-            # level of discount
-            discountElement = element.find("td", {"class": "pricediscount2"})
+            discountElement = element.find("td", {"class": "priceDiscount"})
 
-        if not discountElement:
-            discount = 0
-        else:
-            discount = parse_discount(discountElement.string)
-        # Extract name price and discount from the page
-        return name, price, discount
+            if not discountElement:
+                # Politeia seems to have multiple discount elements, probably based on the
+                # level of discount
+                discountElement = element.find("td", {"class": "pricediscount2"})
+
+            if not discountElement:
+                discount = 0
+            else:
+                discount = parse_discount(discountElement.string)
+            # Extract name price and discount from the page
+            book_list.append(
+                Book(**{'name': name, 'price': price, 'discount': discount})
+            )
+        return book_list
 
 
 class Book:
