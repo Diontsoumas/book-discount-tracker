@@ -4,7 +4,8 @@ from vendors.bookshops import ProtoporiaBookshop, PoliteiaBookshop
 from common.helpers import print_mesage, print_error_message, print_end_of_element
 from common.options_handler import OptionsHandler
 
-ERROR_NOT_FOUND = "Book not found."
+ERROR_NOT_FOUND = "Book wasn't found."
+ERROR_USER_INPUT = "Invalid user input."
 
 
 def crawl():
@@ -29,15 +30,18 @@ def crawl():
                 pass
 
             # Perform a search
-            try:
+            try: 
                 book_choices = vendor.search(book)
                 options_handler = OptionsHandler(book_choices, vendor)
                 options_handler.display_choices()
-                options_handler.ask_input()
-                # print_mesage(
-                #     name=name, type=book.discount_type(discount),
-                #     discount=discount, vendor=vendor.name
-                # )
+                user_choice = options_handler.ask_input()
+                if int(user_choice) > len(book_choices):
+                    print_error_message(
+                        name=book.name, vendor=vendor.name,
+                        error=ERROR_USER_INPUT
+                    )
+                    break
+                configuration.update_configuration(book_choices[int(user_choice)], vendor)
             except IndexError:
                 print_error_message(
                     name=book.name, vendor=vendor.name,

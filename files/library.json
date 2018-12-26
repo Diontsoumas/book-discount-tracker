@@ -1,31 +1,33 @@
 {
-  "settings": [],
-  "book_example": {
-    "name": "Best book ever",
-    "protoporia": "Link to protoporia bookshop",
-    "politeia": "Link to politeia bookshop",
-    "settings": {
-      "MINIMUM_THRESHOLD": 10,
-      "HIDE_UNLESS_HAS_VALID_DISCOUNT": false
-    }
-  },
-  "books": [
-    {
-        "name": "Χόμπιτ",
+    "settings": [],
+    "book_example": {
+        "name": "Best book ever",
+        "protoporia": "Link to protoporia bookshop",
+        "politeia": "Link to politeia bookshop",
         "settings": {
-          "MINIMUM_THRESHOLD": 30,
-          "HIDE_UNLESS_HAS_VALID_DISCOUNT": true
+            "MINIMUM_THRESHOLD": 10,
+            "HIDE_UNLESS_HAS_VALID_DISCOUNT": false
         }
-    }, 
-    {
-        "name": "Η αλγοριθμική τέχνη των αποφάσεων",
-        "protoporia": "https://www.protoporia.gr/i-algorithmiki-techni-ton-apofaseon-p-491259.html",
-        "politeia": "https://www.politeianet.gr/index.php?option=com_virtuemart&Itemid=89&keyword=%CE%97+%CE%B1%CE%BB%CE%B3%CE%BF%CF%81%CE%B9%CE%B8%CE%BC%CE%B9%CE%BA%CE%AE+%CF%84%CE%AD%CF%87%CE%BD%CE%B7+%CF%84%CF%89%CE%BD+%CE%B1%CF%80%CE%BF%CF%86%CE%AC%CF%83%CE%B5%CF%89%CE%BD&limitstart=0"
     },
-    {
-        "name": "Αγριοτρενο",
-        "protoporia": "https://www.protoporia.gr/to-agriotreno-p-490623.html",
-        "politeia": "https://www.politeianet.gr/index.php?option=com_virtuemart&Itemid=89&keyword=%09+%CE%A4%CE%BF+%CE%91%CE%B3%CF%81%CE%B9%CF%8C%CF%84%CF%81%CE%B5%CE%BD%CE%BF&limitstart=0"
-    }
-  ]
+    "books": [
+        {
+            "name": "Χόμπιτ",
+            "settings": {
+                "MINIMUM_THRESHOLD": 30,
+                "HIDE_UNLESS_HAS_VALID_DISCOUNT": true
+            },
+            "politeia": "https://www.politeianet.gr/books/9789600444643-brown-devin-kedros-mathimata-zois-apo-to-chompit-235766",
+            "protoporia": "https://www.protoporia.gr/i-techni-toy-chompit-p-387206.html"
+        },
+        {
+            "name": "Η αλγοριθμική τέχνη των αποφάσεων",
+            "protoporia": "https://www.protoporia.gr/i-algorithmiki-techni-ton-apofaseon-p-491259.html",
+            "politeia": "https://www.politeianet.gr/index.php?option=com_virtuemart&Itemid=89&keyword=%CE%97+%CE%B1%CE%BB%CE%B3%CE%BF%CF%81%CE%B9%CE%B8%CE%BC%CE%B9%CE%BA%CE%AE+%CF%84%CE%AD%CF%87%CE%BD%CE%B7+%CF%84%CF%89%CE%BD+%CE%B1%CF%80%CE%BF%CF%86%CE%AC%CF%83%CE%B5%CF%89%CE%BD&limitstart=0"
+        },
+        {
+            "name": "Αγριοτρενο",
+            "protoporia": "https://www.protoporia.gr/to-agriotreno-p-490623.html",
+            "politeia": "https://www.politeianet.gr/index.php?option=com_virtuemart&Itemid=89&keyword=%09+%CE%A4%CE%BF+%CE%91%CE%B3%CF%81%CE%B9%CF%8C%CF%84%CF%81%CE%B5%CE%BD%CE%BF&limitstart=0"
+        }
+    ]
 }

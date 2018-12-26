@@ -44,14 +44,15 @@ class ProtoporiaBookshop(BaseBookshop):
         book_search = parser.findAll(
             "table", {"class": "productListing"}
         )
-        for book in book_search:
-            element = book.findAll("tr")[1]
+        for entry in book_search:
+            element = entry.findAll("tr")[1]
             # Extract name price and discount from the page
             name = element.find("td", {"class": "txtSmallHeader"}).string
             price = element.find("span", {"class": "productpriceList"}).string
             discount = parse_discount(element.find("font", {"color": "red"}).string)
+            link = element.find("a", {"class": "txtSmallHeader"}).attrs["href"]
             book_list.append(
-                Book(**{'name': name, 'price': price, 'discount': discount})
+                Book(**{"name": book.name, "search_name": name, "price": price, "discount": discount, "link": link})
             )
         return book_list
 
@@ -66,8 +67,11 @@ class PoliteiaBookshop(BaseBookshop):
         """Given a book, get its data form Politeia."""
         parser = get_html_parser(book.politeia)
         # Extract HTML element info from the DOM
-        element = parser.find("td", {"class": "pricediscount2"}).string
-        discount = parse_discount(element)
+        try:
+            element = parser.find("td", {"class": "pricediscount2"}).string
+            discount = parse_discount(element)
+        except AttributeError:
+            discount = 0
         return book.name, discount
 
     def search(self, book):
@@ -81,6 +85,7 @@ class PoliteiaBookshop(BaseBookshop):
         book_search = parser.findAll("div", {"class": "browse-page-block"})
         for element in book_search:
             name = element.find("a", {"class": "browse-product-title"}).string
+            link = element.find("a", {"class": "browse-product-title"}).attrs["href"]
             try:
                 price = element.find("span", {"class": "productPrice"}).string
             except AttributeError:
@@ -99,7 +104,7 @@ class PoliteiaBookshop(BaseBookshop):
                 discount = parse_discount(discountElement.string)
             # Extract name price and discount from the page
             book_list.append(
-                Book(**{'name': name, 'price': price, 'discount': discount})
+                Book(**{"name": book.name, "search_name": name, "price": price, "discount": discount, "link": link})
             )
         return book_list
 

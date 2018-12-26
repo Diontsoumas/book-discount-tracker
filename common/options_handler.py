@@ -1,6 +1,7 @@
 from common.helpers import print_mesage
 from common.constants import PRINT_CHOICE
 
+
 class OptionsHandler:
     """ """
 
@@ -13,10 +14,10 @@ class OptionsHandler:
         """Display a list of given books to the user"""
         for counter, book in enumerate(self.choices):
             print_mesage(
-                name=" {}. {} ".format(counter, book.name),
+                name=" {}. {} ".format(counter, book.search_name),
                 type=PRINT_CHOICE,
                 discount=book.discount, vendor=self.vendor.name
             )
 
     def ask_input(self):
-        input("Please choose one: ")
+        return input("Please choose one: ")
