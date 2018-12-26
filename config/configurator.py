@@ -1,4 +1,6 @@
 import json
+import sys
+import os
 from vendors.bookshops import Book
 
 
@@ -7,7 +9,19 @@ class Configurator():
 
     def __init__(self):
         """"Constructor."""
-        self.configuration = json.loads(open('files/library.json').read())
+        self.configuration = json.loads(
+            open(self.get_config_path()).read()
+        )
+
+    def get_config_path(self):
+        """Return the path of the configuration file."""
+        relative_path = "library.json"
+        try:
+            # PyInstaller creates a temp folder and stores path in _MEIPASS
+            base_path = sys._MEIPASS
+        except Exception:
+            base_path = os.path.abspath(".")
+        return os.path.join(base_path, relative_path)
 
     def get_books(self):
         """Return all books from the configuration."""
@@ -29,6 +43,6 @@ class Configurator():
 
     def save(self):
         """Save the configuration back to the json file."""
-        file = open("files/library.json", "w+")
+        file = open(self.get_config_path(), "w+")
         file.write(json.dumps(self.configuration, indent=4, ensure_ascii=False))
         file.close()

@@ -1,2 +1,7 @@
 __pycache__/
-files/library.json
+library.json
+.pytest_cache/
+build/
+dist/
+.DS_Store
+book-tracker.spec
