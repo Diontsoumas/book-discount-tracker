@@ -1,0 +1,16 @@
+{
+    "settings": [],
+    "books": [
+        # Demo book
+        {
+            "name": "The name of the book",
+            "protoporia": "Link to protoporia bookshop",
+            "politeia": "Link to politeia bookshop",
+            "settings": {
+                "MINIMUM_THRESHOLD": 10, # Minimum discount for a book to appear in red colour
+                "HIDE_UNLESS_HAS_VALID_DISCOUNT": false # If true, the book will be hidden unless it has at least the minimum discount
+            }
+        },
+        # Add more books here
+    ]
+}
