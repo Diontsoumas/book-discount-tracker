@@ -1,11 +1,36 @@
 from colorama import init as colorama_init
 from config.configurator import Configurator
 from vendors.bookshops import ProtoporiaBookshop, PoliteiaBookshop
-from common.helpers import print_mesage, print_error_message, print_end_of_element
+from common.helpers import print_mesage, print_error_message
 from common.options_handler import OptionsHandler
+from common.constants import PRINT_INIT, PRINT_FINISHED, PRINT_NEXT_ELEMENT
 
 ERROR_NOT_FOUND = "Book wasn't found."
 ERROR_USER_INPUT = "Invalid user input."
+
+
+def init():
+    """Initialize the colorama library and output some initial text."""
+    # Initialise colorama for terminal text
+    colorama_init()
+    print_mesage(type=PRINT_INIT)
+
+
+def perform_search(vendor, book, configuration):
+    """Perform a search on a specific book on a specific vendor."""
+    book_choices = vendor.search(book)
+    options_handler = OptionsHandler(book_choices, vendor)
+    # Show options to the user
+    options_handler.display_choices()
+    # Ask for user's input
+    user_choice = options_handler.ask_input()
+    if int(user_choice) > len(book_choices):
+        print_error_message(
+            name=book.name, vendor=vendor.name,
+            error=ERROR_USER_INPUT
+        )
+        return False
+    return book_choices[int(user_choice)]
 
 
 def crawl():
@@ -16,7 +41,7 @@ def crawl():
 
     for book in books:
         for vendor in vendors:
-            # If there is a link for that specific vendor, visit the direct page
+            # If there is a link for that specific vendor, visit directly the page
             try:
                 if getattr(book, vendor.name):
                     name, discount = vendor.get(book)
@@ -29,27 +54,25 @@ def crawl():
                 # Vendor link not found
                 pass
 
-            # Perform a search
-            try: 
-                book_choices = vendor.search(book)
-                options_handler = OptionsHandler(book_choices, vendor)
-                options_handler.display_choices()
-                user_choice = options_handler.ask_input()
-                if int(user_choice) > len(book_choices):
-                    print_error_message(
-                        name=book.name, vendor=vendor.name,
-                        error=ERROR_USER_INPUT
+            # If direct link not found, perform a search
+            try:
+                book_found = perform_search(
+                    vendor=vendor, book=book, configuration=configuration
+                )
+                if book_found:
+                    # Update the configuration with user's choice
+                    configuration.update_configuration(
+                        book_to_update=book_found, vendor=vendor
                     )
-                    break
-                configuration.update_configuration(book_choices[int(user_choice)], vendor)
             except IndexError:
                 print_error_message(
                     name=book.name, vendor=vendor.name,
                     error=ERROR_NOT_FOUND
                 )
-        print_end_of_element()
 
-# Initialise colorama for terminal text
-colorama_init()
+        print_mesage(type=PRINT_FINISHED) if book == books[-1] else print_mesage(type=PRINT_NEXT_ELEMENT)
+
+
 # Crawl for updates
+init()
 crawl()

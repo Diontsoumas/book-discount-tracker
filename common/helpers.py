@@ -1,8 +1,10 @@
 from colorama import Fore, Back, Style
-from common.constants import PRINT_DISCOUNT, PRINT_NORMAL, PRINT_HIDE, PRINT_CHOICE
+from common.constants import (PRINT_DISCOUNT, PRINT_NORMAL, PRINT_HIDE,
+                              PRINT_CHOICE, PRINT_INIT, PRINT_FINISHED,
+                              PRINT_NEXT_ELEMENT)
 
 
-def print_mesage(name, vendor, type, discount=None, price=None):
+def print_mesage(type, name=None, vendor=None, discount=None, price=None):
     """Print the message to the user."""
     message = "{} {}% discount in {}".format(
         name,
@@ -19,6 +21,15 @@ def print_mesage(name, vendor, type, discount=None, price=None):
         pass
     elif type == PRINT_CHOICE:
         print(Back.CYAN + Fore.RED + message + Style.RESET_ALL)
+    elif type == PRINT_INIT:
+        message = " Welcome to the Book Tracker!! "
+        print(Back.WHITE + Fore.BLACK + message + Style.RESET_ALL)
+    elif type == PRINT_FINISHED:
+        line = "That's all, cu soon, bye bye!"
+        print(Back.WHITE + Fore.BLACK + line + Style.RESET_ALL)
+    elif type == PRINT_NEXT_ELEMENT:
+        line = "Searching for next book..."
+        print(Back.WHITE + Fore.BLACK + line + Style.RESET_ALL)
 
 
 def print_error_message(name, vendor, error):
@@ -29,8 +40,3 @@ def print_error_message(name, vendor, error):
         error
     )
     print(Back.RED + message + Style.RESET_ALL)
-
-
-def print_end_of_element():
-    """Print a straight line after each book."""
-    print("<---------------------------------------------------->")
