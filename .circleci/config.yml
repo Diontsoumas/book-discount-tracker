@@ -38,14 +38,3 @@ jobs:
           command: |
             . venv/bin/activate
             pytest -s
-
-      - run:
-          name: create PyInstaller file for MacOs
-          command: |
-            . venv/bin/activate
-            pyinstaller run.py -n book-tracker --onedir --clean
-            mkdir app-deployments
-            zip app-deployments/book-tracker.zip -r ./dist
-      - store_artifacts:
-          path: app-deployments
-          destination: app-deployments
