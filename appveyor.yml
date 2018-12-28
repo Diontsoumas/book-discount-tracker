@@ -55,10 +55,12 @@ build_script:
   - cmd: pyinstaller run.py -n book-tracker --onedir --clean
 
 after_test:
-  - sh: "echo $AWS_ACCESS_KEY_ID"
-  #- sh: "aws configure"
-  - sh: "sam build && sam package --s3-bucket diotsoumas-book-tracker"
-
+  # Pack the artifacts 
+  - sh: "sam build"
+  # Upload to S3 bucket, save the template file to be used below
+  - sh: "sam package --output-template-file serverless-output.yaml --s3-bucket diotsoumas-book-tracker"
+  # Upload the stack with the new artifact
+  - sh: "aws cloudformation deploy --template-file ./serverless-output.yaml --stack-name book-tracker --capabilities CAPABILITY_IAM"
 artifacts:
   - path : dist
     name : "book-tracker"
