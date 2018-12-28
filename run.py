@@ -3,7 +3,8 @@ from config.configurator import Configurator
 from vendors.bookshops import ProtoporiaBookshop, PoliteiaBookshop
 from common.helpers import print_mesage, print_error_message
 from common.options_handler import OptionsHandler
-from common.constants import PRINT_INIT, PRINT_FINISHED, PRINT_NEXT_ELEMENT
+from common.constants import (PRINT_INIT, PRINT_FINISHED,
+                              PRINT_NEXT_ELEMENT, MODE_LOCAL, MODE_AWS)
 
 ERROR_NOT_FOUND = "Book wasn't found."
 ERROR_USER_INPUT = "Invalid user input."
@@ -33,7 +34,7 @@ def perform_search(vendor, book, configuration):
     return book_choices[int(user_choice)]
 
 
-def crawl():
+def crawl(mode):
     """Iterate through a list of books, print the discount (if any) for both providers."""
     configuration = Configurator()
     vendors = (PoliteiaBookshop(), ProtoporiaBookshop())
@@ -73,6 +74,14 @@ def crawl():
         print_mesage(type=PRINT_FINISHED) if book == books[-1] else print_mesage(type=PRINT_NEXT_ELEMENT)
 
 
-# Crawl for updates
+def lambda_handler(event, context):
+    """Entrypoint for AWS Lambda events."""
+    # Initiate and run the script in AWS mode
+    init()
+    crawl(mode=MODE_AWS)
+    return True
+
+
+# Initiate and run the script in local mode
 init()
-crawl()
+crawl(mode=MODE_LOCAL)

@@ -1,0 +1,17 @@
+Transform: 'AWS::Serverless-2016-10-31'
+Resources:
+
+  BookTrackerFunction:
+    # This resource creates a Lambda function.
+    Type: 'AWS::Serverless::Function'
+    
+    Properties:
+      
+      Runtime: python3.6
+        
+      # This is the Lambda function's handler.
+      Handler: run.lambda_handler
+      
+      # The location of the Lambda function code.
+      CodeUri: ./
+      Timeout: 60

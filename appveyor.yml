@@ -11,29 +11,34 @@ environment:
 
   matrix:
 
-    - PYTHON: "C:\\Python36-x64"
-      PYTHON_VERSION: "3.6.x"
-      PYTHON_ARCH: "64"
+    # Enable to allow windows PyInstaller dist
+    # - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+    #   PYTHON: "C:\\Python36-x64"
+    #   PYTHON_VERSION: "3.6.x"
+    #   PYTHON_ARCH: "64"
+      
+    # Ubuntu - python 3
+    - APPVEYOR_BUILD_WORKER_IMAGE: Ubuntu
+      PYTHON: "3.6"
+stack: python %PYTHON%
 
 matrix:
   fast_finish: true
 
 install:
-  - ECHO "Filesystem root:"
-  - ps: "ls \"C:/\""
-
   # Prepend newly installed Python to the PATH of this build (this cannot be
   # done from inside the powershell script as it would require to restart
   # the parent CMD process).
-  - "SET PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%"
+  - cmd: "SET PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%"
 
   # Check that we have the expected version and architecture for Python
   - "python --version"
-  - "python -c \"import struct; print(struct.calcsize('P') * 8)\""
+  - cmd: "python -c \"import struct; print(struct.calcsize('P') * 8)\""
 
   # Upgrade to the latest version of pip to avoid it displaying warnings
   # about it being out of date.
-  - "python -m pip install --disable-pip-version-check --user --upgrade pip==9.0.3"
+  - cmd: "python -m pip install --disable-pip-version-check --user --upgrade pip==9.0.3"
+  #- sh: "sudo apt-get --yes install python3-dev python-dev build-essential libssl-dev libffi-dev"
   - "python -m pip install pyinstaller"
 
   # Set up the project in develop mode. If some dependencies contain
@@ -41,18 +46,18 @@ install:
   # pip will build them from source using the MSVC compiler matching the
   # target Python version and architecture
   - "python -m pip install -r requirements.txt"
+  - sh: "python -m pip install aws-sam-cli awscli"
 
 build_script:
   # Build the compiled extension
-  #- "%CMD_IN_ENV% python setup.py build"
-  - pyinstaller run.py -n book-tracker --onedir --clean
+  # TODO: Fix issue with Ubuntu setup
+  - cmd: "%CMD_IN_ENV% python setup.py build"
+  - cmd: pyinstaller run.py -n book-tracker --onedir --clean
 
 after_test:
-  # If tests are successful, create binary packages for the project.
-  #- "%CMD_IN_ENV% python setup.py bdist_wheel"
-  #- "%CMD_IN_ENV% python setup.py bdist_wininst"
-  #- "%CMD_IN_ENV% python setup.py bdist_msi"
-  - ps: "ls dist"
+  - sh: "echo $AWS_ACCESS_KEY_ID"
+  #- sh: "aws configure"
+  - sh: "sam build && sam package --s3-bucket diotsoumas-book-tracker"
 
 artifacts:
   - path : dist
