@@ -28,6 +28,13 @@ class Configurator():
         """Return all books from the configuration."""
         return [Book(**book_config) for book_config in self.configuration["books"]]
 
+    def get_user_email(self):
+        """Return the user's email"""
+        try:
+            return self.configuration["settings"]["email"]
+        except AttributeError:
+            return False
+
     def get_settings(self):
         """Return settings from the configuration."""
         return self.configuration["settings"]

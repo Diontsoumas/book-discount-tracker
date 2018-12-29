@@ -1,12 +1,10 @@
 from colorama import init as colorama_init
 from config.configurator import Configurator
 from vendors.bookshops import ProtoporiaBookshop, PoliteiaBookshop
-from common.helpers import print_mesage, print_error_message
+from common.helpers import print_mesage, print_error_message, PrinterQueue
 from common.options_handler import OptionsHandler
-from common.constants import (PRINT_INIT, PRINT_FINISHED,
-                              PRINT_NEXT_ELEMENT, MODE_LOCAL, MODE_AWS)
+from common.constants import MODE_LOCAL, MODE_AWS, PRINT_INIT
 
-ERROR_NOT_FOUND = "Book wasn't found."
 ERROR_USER_INPUT = "Invalid user input."
 
 
@@ -37,6 +35,7 @@ def perform_search(vendor, book, configuration):
 def crawl(mode):
     """Iterate through a list of books, print the discount (if any) for both providers."""
     configuration = Configurator()
+    printer = PrinterQueue()
     vendors = (PoliteiaBookshop(), ProtoporiaBookshop())
     books = configuration.get_books()
 
@@ -45,11 +44,9 @@ def crawl(mode):
             # If there is a link for that specific vendor, visit directly the page
             try:
                 if getattr(book, vendor.name):
-                    name, discount = vendor.get(book)
-                    print_mesage(
-                        name=name, type=book.discount_type(discount), discount=discount,
-                        vendor=vendor.name
-                    )
+                    #Update book instance
+                    book.update_values(**vendor.get(book))
+                    printer.add_to_print_queue(book, vendor)
                     continue
             except AttributeError:
                 # Vendor link not found
@@ -66,12 +63,9 @@ def crawl(mode):
                         book_to_update=book_found, vendor=vendor
                     )
             except IndexError:
-                print_error_message(
-                    name=book.name, vendor=vendor.name,
-                    error=ERROR_NOT_FOUND
-                )
+                printer.add_to_error_queue(book, vendor)
 
-        print_mesage(type=PRINT_FINISHED) if book == books[-1] else print_mesage(type=PRINT_NEXT_ELEMENT)
+    printer.show(mode=mode, email=configuration.get_user_email())
 
 
 def lambda_handler(event, context):

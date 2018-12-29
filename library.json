@@ -1,5 +1,7 @@
 {
-    "settings": [],
+    "settings": {
+      "email": "diotsoumas@gmail.com"
+    },
     "book_example": {
         "name": "Best book ever",
         "protoporia": "Link to protoporia bookshop",

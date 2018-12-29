@@ -1,5 +1,5 @@
 {
-    "settings": [],
+    "settings": {"email": "your-email-address"},
     "books": [
         # Demo book
         {

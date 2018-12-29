@@ -31,7 +31,7 @@ class ProtoporiaBookshop(BaseBookshop):
             "td", {"class": "productSpecialPrice"}
         ).findAll("span")[1].string
         discount = parse_discount(element)
-        return book.name, discount
+        return {"discount": discount}
 
     def search(self, book):
         """Given a book name, make a search in Protoporia and return info for the first match."""
@@ -72,7 +72,7 @@ class PoliteiaBookshop(BaseBookshop):
             discount = parse_discount(element)
         except AttributeError:
             discount = 0
-        return book.name, discount
+        return {"discount": discount}
 
     def search(self, book):
         """Given a book name, make a search in Politeia and return info for the first match."""
@@ -126,19 +126,23 @@ class Book:
             pass
         return PRINT_NORMAL
 
-    def discount_type(self, discount):
+    def discount_type(self):
         """Depending on the settings of each book, determine about the notification type
         that will be displayed to the user.
         """
         try:
             # Check for custom threshold limit
-            if int(discount) >= self.settings['MINIMUM_THRESHOLD']:
+            if int(self.discount) >= self.settings['MINIMUM_THRESHOLD']:
                 return PRINT_DISCOUNT
             return self.get_visibility()
         except AttributeError:
             pass
         # Check for the default limit
-        if int(discount) >= MINIMUM_THRESHOLD:
+        if int(self.discount) >= MINIMUM_THRESHOLD:
             return PRINT_DISCOUNT
 
         return self.get_visibility()
+
+    def update_values(self, **kwargs):
+        """Update the attributes for a book."""
+        self.discount = kwargs.get("discount") or 0
