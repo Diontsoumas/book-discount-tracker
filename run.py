@@ -4,6 +4,7 @@ from vendors.bookshops import ProtoporiaBookshop, PoliteiaBookshop
 from common.helpers import print_mesage, print_error_message, PrinterQueue
 from common.options_handler import OptionsHandler
 from common.constants import MODE_LOCAL, MODE_AWS, PRINT_INIT
+import json
 
 ERROR_USER_INPUT = "Invalid user input."
 
@@ -32,9 +33,9 @@ def perform_search(vendor, book, configuration):
     return book_choices[int(user_choice)]
 
 
-def crawl(mode):
+def crawl(mode, s3_key=None):
     """Iterate through a list of books, print the discount (if any) for both providers."""
-    configuration = Configurator()
+    configuration = Configurator(s3_key=s3_key)
     printer = PrinterQueue()
     vendors = (PoliteiaBookshop(), ProtoporiaBookshop())
     books = configuration.get_books()
@@ -71,8 +72,10 @@ def crawl(mode):
 def lambda_handler(event, context):
     """Entrypoint for AWS Lambda events."""
     # Initiate and run the script in AWS mode
+    message = json.loads(event['Records'][0]['Sns']['Message'])
+    print(message)
     init()
-    crawl(mode=MODE_AWS)
+    crawl(mode=MODE_AWS, s3_key=message["s3_key"])
     return True
 
 

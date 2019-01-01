@@ -1,18 +1,26 @@
 import json
 import sys
 import os
+import boto3
 from vendors.bookshops import Book
-from common.constants import LIBRARY_FILE_NAME
+from common.constants import LIBRARY_FILE_NAME, BUCKET_NAME
 
 
 class Configurator():
     """Responsible for setting up the configuration."""
 
-    def __init__(self):
+    def __init__(self, s3_key=None):
         """"Constructor."""
-        self.configuration = json.loads(
-            open(self.get_config_path()).read()
-        )
+        if(s3_key):
+            s3 = boto3.resource('s3')
+            obj = s3.Object(BUCKET_NAME, s3_key)
+            self.configuration = json.loads(
+                obj.get()['Body'].read().decode('utf-8')
+            )
+        else:
+            self.configuration = json.loads(
+                open(self.get_config_path()).read()
+            )
 
     def get_config_path(self):
         """Return the path of the configuration file."""
