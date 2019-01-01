@@ -41,15 +41,24 @@ class ProtoporiaBookshop(BaseBookshop):
         )
         book_list = []
         parser = get_html_parser(link)
-        book_search = parser.findAll(
+        book_search = parser.find(
             "table", {"class": "productListing"}
         )
-        for entry in book_search:
-            element = entry.findAll("tr")[1]
+        for element in book_search.findAll("tr", recursive=False):
+            # First element is the table header, continue
+            if(element.find("td", {"class": "productListing-heading"})):
+                continue
+            #import ipdb; ipdb.set_trace()
             # Extract name price and discount from the page
             name = element.find("td", {"class": "txtSmallHeader"}).string
-            price = element.find("span", {"class": "productpriceList"}).string
-            discount = parse_discount(element.find("font", {"color": "red"}).string)
+            try:
+                price = element.find("span", {"class": "productpriceList"}).string
+                discount = parse_discount(element.find("font", {"color": "red"}).string)
+            except AttributeError:
+                # Price or discount not found, probably book is not available from the
+                # publisher
+                price = 0
+                discount = 0
             link = element.find("a", {"class": "txtSmallHeader"}).attrs["href"]
             book_list.append(
                 Book(**{"name": book.name, "search_name": name, "price": price, "discount": discount, "link": link})
@@ -91,7 +100,7 @@ class PoliteiaBookshop(BaseBookshop):
             except AttributeError:
                 price = None
 
-            discountElement = element.find("td", {"class": "priceDiscount"})
+            discountElement = element.find("td", {"class": "pricediscount"})
 
             if not discountElement:
                 # Politeia seems to have multiple discount elements, probably based on the

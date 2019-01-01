@@ -5,3 +5,4 @@ dist/
 .DS_Store
 book-tracker.spec
 serverless-output.yaml
+library.json

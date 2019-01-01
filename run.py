@@ -70,9 +70,14 @@ def crawl(mode, s3_key=None):
 
 
 def lambda_handler(event, context):
-    """Entrypoint for AWS Lambda events."""
+    """Entrypoint for AWS Lambda events.
+
+    AWS's SNS service is responsible for sending events to this Lambda function. The
+    Event parameter includes an "s3_key" attribute, with the key name of the S3 object
+    which holds the configuration to run this script against.
+    """
     # Initiate and run the script in AWS mode
-    message = json.loads(event['Records'][0]['Sns']['Message'])
+    message = json.loads(event["Records"][0]["Sns"]["Message"])
     print(message)
     init()
     crawl(mode=MODE_AWS, s3_key=message["s3_key"])

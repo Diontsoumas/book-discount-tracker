@@ -3,7 +3,7 @@ import requests
 import os
 from common.constants import (PRINT_DISCOUNT, PRINT_NORMAL, PRINT_HIDE,
                               PRINT_CHOICE, PRINT_INIT, PRINT_FINISHED,
-                              PRINT_NEXT_ELEMENT, MODE_LOCAL)
+                              PRINT_NEXT_ELEMENT, MODE_LOCAL, MAIL_HOSTNAME)
 
 ERROR_NOT_FOUND = "Book wasn't found."
 USER_EMAIL_NOT_FOUND = "User's email not found."
@@ -101,7 +101,7 @@ class PrinterQueue():
             )
         request = requests.post(os.environ.get("EMAIL_REQUEST_URL"),
                                 auth=("api", os.environ.get("EMAIL_API_KEY")),
-                                data={"from": "book-keeper@book-tracker.gr",
+                                data={"from": MAIL_HOSTNAME,
                                       "to": email,
                                       "subject": "Your daily book tracker summary",
                                       "html": email_template.replace("{book_msg}",
