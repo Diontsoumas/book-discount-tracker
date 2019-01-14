@@ -19,6 +19,11 @@ def init():
 def perform_search(vendor, book, configuration):
     """Perform a search on a specific book on a specific vendor."""
     book_choices = vendor.search(book)
+
+    # Early return if nothing is found
+    if not len(book_choices):
+        return False
+
     options_handler = OptionsHandler(book_choices, vendor)
     # Show options to the user
     options_handler.display_choices()
@@ -45,9 +50,12 @@ def crawl(mode, s3_key=None):
             # If there is a link for that specific vendor, visit directly the page
             try:
                 if getattr(book, vendor.name):
-                    #Update book instance
-                    book.update_values(**vendor.get(book))
-                    printer.add_to_print_queue(book, vendor)
+                    # Update book instance
+                    if vendor.get(book):
+                        book.update_values(**vendor.get(book))
+                        printer.add_to_print_queue(book, vendor)
+                        continue
+                    # Book not found, continue to next
                     continue
             except AttributeError:
                 # Vendor link not found
@@ -62,6 +70,11 @@ def crawl(mode, s3_key=None):
                     # Update the configuration with user's choice
                     configuration.update_configuration(
                         book_to_update=book_found, vendor=vendor
+                    )
+                else:
+                    printer.add_to_error_queue(book, vendor)
+                    configuration.update_configuration(
+                        book_to_update=book, vendor=vendor, not_found=True
                     )
             except IndexError:
                 printer.add_to_error_queue(book, vendor)

@@ -1,5 +1,6 @@
 from vendors.utils import parse_discount, get_html_parser
-from common.constants import MINIMUM_THRESHOLD, PRINT_DISCOUNT, PRINT_NORMAL, PRINT_HIDE
+from common.constants import (MINIMUM_THRESHOLD, PRINT_DISCOUNT, PRINT_NORMAL, PRINT_HIDE,
+                              BOOK_NOT_FOUND)
 
 
 class BaseBookshop:
@@ -21,10 +22,15 @@ class BaseBookshop:
 class ProtoporiaBookshop(BaseBookshop):
     SHOP_NAME = "protoporia"
     SEARCH_LINK = "https://www.protoporia.gr/advanced_search_result.php?keywords="
+    BOOK_NOT_FOUNT_COPY = "Δεν υπάρχει βιβλίο που ταιριάζει στα κριτήρια αναζήτησης."
 
     """Protoporia bookshop"""
     def get(self, book):
         """Given a book, get its data from Protoporia."""
+        # If the book couldn't be found, early return
+        if book.protoporia == BOOK_NOT_FOUND:
+            return False
+
         parser = get_html_parser(book.protoporia)
         # Extract HTML element info from the DOM
         element = parser.find(
@@ -32,6 +38,15 @@ class ProtoporiaBookshop(BaseBookshop):
         ).findAll("span")[1].string
         discount = parse_discount(element)
         return {"discount": discount}
+
+    def no_search_results(self, elements):
+        """Determine if the returning element of a search has any results or not"""
+        if (len(elements) == 1 and
+                elements[0].find("td", {"class": "productListing-data"}) and
+                elements[0].find("td", {"class": "productListing-data"}).string ==
+                self.BOOK_NOT_FOUNT_COPY):
+            return True
+        return False
 
     def search(self, book):
         """Given a book name, make a search in Protoporia and return info for the first match."""
@@ -44,11 +59,16 @@ class ProtoporiaBookshop(BaseBookshop):
         book_search = parser.find(
             "table", {"class": "productListing"}
         )
-        for element in book_search.findAll("tr", recursive=False):
+
+        elements = book_search.findAll("tr", recursive=False)
+        # If nothing got found
+        if self.no_search_results(elements):
+            return book_list
+
+        for element in elements:
             # First element is the table header, continue
             if(element.find("td", {"class": "productListing-heading"})):
                 continue
-            #import ipdb; ipdb.set_trace()
             # Extract name price and discount from the page
             name = element.find("td", {"class": "txtSmallHeader"}).string
             try:
@@ -74,6 +94,10 @@ class PoliteiaBookshop(BaseBookshop):
 
     def get(self, book):
         """Given a book, get its data form Politeia."""
+        # If the book couldn't be found, early return
+        if book.politeia == BOOK_NOT_FOUND:
+            return False
+
         parser = get_html_parser(book.politeia)
         # Extract HTML element info from the DOM
         try:
@@ -92,6 +116,11 @@ class PoliteiaBookshop(BaseBookshop):
         book_list = []
         parser = get_html_parser(link)
         book_search = parser.findAll("div", {"class": "browse-page-block"})
+
+        # If nothing got found
+        if not len(book_search):
+            return book_list
+
         for element in book_search:
             name = element.find("a", {"class": "browse-product-title"}).string
             link = element.find("a", {"class": "browse-product-title"}).attrs["href"]

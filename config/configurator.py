@@ -3,7 +3,7 @@ import sys
 import os
 import boto3
 from vendors.bookshops import Book
-from common.constants import LIBRARY_FILE_NAME, BUCKET_NAME
+from common.constants import LIBRARY_FILE_NAME, BUCKET_NAME, BOOK_NOT_FOUND
 
 
 class Configurator():
@@ -47,12 +47,19 @@ class Configurator():
         """Return settings from the configuration."""
         return self.configuration["settings"]
 
-    def update_configuration(self, book_to_update, vendor):
+    def update_configuration(self, book_to_update, vendor, not_found=False):
         """Update the link for a specific vendor, for a specific book."""
         for pos, book in enumerate(self.configuration["books"]):
             if book_to_update.name == book["name"]:
-                self.configuration["books"][pos][vendor.name] = book_to_update.link
-                break
+                # If the book couldn't be found, update the configuration with a
+                # particular placeholder string
+                if not_found:
+                    self.configuration["books"][pos][vendor.name] = BOOK_NOT_FOUND
+                    break
+                # In any other case update with the valid link
+                else:
+                    self.configuration["books"][pos][vendor.name] = book_to_update.link
+                    break
 
         self.save()
         return True

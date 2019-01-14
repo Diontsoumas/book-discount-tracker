@@ -62,7 +62,7 @@ class PrinterQueue():
 
     def add_to_error_queue(self, book, vendor):
         """Adds an error to the print queue."""
-        self.queue.append(book, vendor)
+        self.error_queue.append({'book': book, 'vendor': vendor})
 
     def show(self, mode, email=None):
         """Shows the books in the queue to the user"""
