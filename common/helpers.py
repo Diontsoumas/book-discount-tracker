@@ -58,7 +58,7 @@ class PrinterQueue():
 
     def add_to_print_queue(self, book, vendor):
         """Adds a book to the print queue."""
-        self.queue.append({'book': book, 'vendor': vendor})
+        self.queue.append({'book': book, 'vendor': vendor, 'discount': book.discount})
 
     def add_to_error_queue(self, book, vendor):
         """Adds an error to the print queue."""
@@ -74,7 +74,7 @@ class PrinterQueue():
             print_mesage(type=msg.get("book").discount_type(),
                          name=msg.get("book").name,
                          vendor=msg.get("vendor").name,
-                         discount=msg.get("book").discount
+                         discount=msg.get("discount")
                          )
 
         for msg in self.error_queue:

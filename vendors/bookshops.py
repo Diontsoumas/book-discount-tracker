@@ -93,7 +93,7 @@ class PoliteiaBookshop(BaseBookshop):
     SEARCH_LINK = "https://www.politeianet.gr/index.php?option=com_virtuemart&Itemid=89&keyword="
 
     def get(self, book):
-        """Given a book, get its data form Politeia."""
+        """Given a book, get its data from Politeia."""
         # If the book couldn't be found, early return
         if book.politeia == BOOK_NOT_FOUND:
             return False
@@ -104,7 +104,13 @@ class PoliteiaBookshop(BaseBookshop):
             element = parser.find("td", {"class": "pricediscount2"}).string
             discount = parse_discount(element)
         except AttributeError:
-            discount = 0
+            # Discount element can be found in two different HTML elements
+            try:
+                element = parser.find("td", {"class": "pricediscount"}).string
+                discount = parse_discount(element)
+            except AttributeError:
+                discount = 0
+
         return {"discount": discount}
 
     def search(self, book):
