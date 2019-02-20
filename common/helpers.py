@@ -1,6 +1,7 @@
 from colorama import Fore, Back, Style
 import requests
 import os
+import copy
 from common.constants import (PRINT_DISCOUNT, PRINT_NORMAL, PRINT_HIDE,
                               PRINT_CHOICE, PRINT_INIT, PRINT_FINISHED,
                               PRINT_NEXT_ELEMENT, MODE_LOCAL, MAIL_HOSTNAME)
@@ -12,8 +13,9 @@ EMAIL_NOT_SENT = "Email not sent."
 
 def print_mesage(type, name=None, vendor=None, discount=None, price=None):
     """Print the message to the user."""
-    message = "{} {}% discount in {}".format(
+    message = "{} {} ({}% discount) in {}".format(
         name,
+        price,
         discount,
         vendor
     )
@@ -58,7 +60,8 @@ class PrinterQueue():
 
     def add_to_print_queue(self, book, vendor):
         """Adds a book to the print queue."""
-        self.queue.append({'book': book, 'vendor': vendor, 'discount': book.discount})
+        book = copy.deepcopy(book)
+        self.queue.append({'book': book, 'vendor': vendor})
 
     def add_to_error_queue(self, book, vendor):
         """Adds an error to the print queue."""
@@ -74,7 +77,8 @@ class PrinterQueue():
             print_mesage(type=msg.get("book").discount_type(),
                          name=msg.get("book").name,
                          vendor=msg.get("vendor").name,
-                         discount=msg.get("discount")
+                         discount=msg.get("book").discount,
+                         price=msg.get("book").price
                          )
 
         for msg in self.error_queue:

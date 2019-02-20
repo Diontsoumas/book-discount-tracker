@@ -37,7 +37,12 @@ class ProtoporiaBookshop(BaseBookshop):
             "td", {"class": "productSpecialPrice"}
         ).findAll("span")[1].string
         discount = parse_discount(element)
-        return {"discount": discount}
+        price = parser.find(
+            "td", {"class": "txtSmaller"}
+        ).find(
+            "span", {"class": "productprice"}
+        ).string.strip()
+        return {"discount": discount, "price": price}
 
     def no_search_results(self, elements):
         """Determine if the returning element of a search has any results or not"""
@@ -100,6 +105,7 @@ class PoliteiaBookshop(BaseBookshop):
 
         parser = get_html_parser(book.politeia)
         # Extract HTML element info from the DOM
+
         try:
             element = parser.find("td", {"class": "pricediscount2"}).string
             discount = parse_discount(element)
@@ -111,7 +117,8 @@ class PoliteiaBookshop(BaseBookshop):
             except AttributeError:
                 discount = 0
 
-        return {"discount": discount}
+        price = parser.find("span", {"class": "productPrice"}).string.strip()
+        return {"discount": discount, "price": price}
 
     def search(self, book):
         """Given a book name, make a search in Politeia and return info for the first match."""
@@ -190,3 +197,4 @@ class Book:
     def update_values(self, **kwargs):
         """Update the attributes for a book."""
         self.discount = kwargs.get("discount") or 0
+        self.price = kwargs.get("price") or 0
