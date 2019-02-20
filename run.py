@@ -97,6 +97,7 @@ def lambda_handler(event, context):
     return True
 
 
-# Initiate and run the script in local mode
-init()
-crawl(mode=MODE_LOCAL)
+# Initiate and run the script in local mode if you run the script manually
+if __name__ == "__main__":
+    init()
+    crawl(mode=MODE_LOCAL)

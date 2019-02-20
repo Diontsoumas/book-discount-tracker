@@ -98,10 +98,11 @@ class PrinterQueue():
 
         book_msg = ""
         for msg in self.queue:
-            book_msg += "- {} {}% discount in {} <br>".format(
+            book_msg += "- {} at {} (-{}%) in {} <br>".format(
                 msg.get("book").name,
+                msg.get("book").price,
                 msg.get("book").discount,
-                msg.get("vendor").name
+                msg.get("vendor").name,
             )
         request = requests.post(os.environ.get("EMAIL_REQUEST_URL"),
                                 auth=("api", os.environ.get("EMAIL_API_KEY")),
