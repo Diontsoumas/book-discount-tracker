@@ -1,0 +1,16 @@
+{
+  "manifest_version": 2,
+ 
+  "name": "Diabazoum.me",
+  "description": "Diabazoume Chrome extension.",
+  "version": "1.0",
+ 
+  "browser_action": {
+    "default_icon": "icon.png",
+    "default_popup": "popup.html"
+  },
+  "manifest_version": 2,
+  "permissions": [
+    "storage", "activeTab", "tabs"
+  ]
+}
