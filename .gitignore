@@ -6,3 +6,4 @@ dist/
 book-tracker.spec
 serverless-output.yaml
 library.json
+**/*.pyc

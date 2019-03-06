@@ -1,12 +1,15 @@
 import boto3
 import json
 
+from common.constants import BUCKET_NAME
+from chrome_extention.errors import ChromeExtError
+
 s3 = boto3.resource('s3')
-s3_config_bucket = "diotsoumas-book-tracker-config-files"
+email_found_error = "There is already an account with that email address."
 
 
 def cloudwatch_lambda_handler(event, context):
-    bucket = s3.Bucket(s3_config_bucket)
+    bucket = s3.Bucket(BUCKET_NAME)
     sns_client = boto3.client('sns')
     arn = "arn:aws:sns:eu-west-1:169367514751:Lamdba-caller"
 
@@ -20,10 +23,10 @@ def cloudwatch_lambda_handler(event, context):
 
 
 def api_gateway_new_user(event, context):
-    """Get the email address a new Chrome user."""
+    """Create an S3 configuration object for a new user."""
 
     # Get this from the context
-    email_address = "lala"
+    email_address = "lala2"
     s3_client = boto3.resource('s3')
 
     file_contents = json.dumps({
@@ -31,9 +34,11 @@ def api_gateway_new_user(event, context):
         "books": []
     })
     # Check if email already exists
+    try:
+        s3_client.Object(BUCKET_NAME, email_address).get()
+        raise ChromeExtError(message=email_found_error, error_code=400)
+    except s3_client.meta.client.exceptions.NoSuchKey:
+        object = s3_client.Object(BUCKET_NAME, email_address)
+        object.put(Body=file_contents)
 
-    object = s3_client.Object(s3_config_bucket, email_address)
-    object.put(Body=file_contents)
-
-
-api_gateway_new_user('lala', 'lala')
+api_gateway_new_user('lala2', 'lala2')
